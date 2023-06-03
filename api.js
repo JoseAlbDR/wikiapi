@@ -58,12 +58,24 @@ app.get("/", (req, res) => {
 // Post endpoints
 // Add a new article
 app.post("/articles", async (req, res) => {
-  const title = req.body.title;
-  const content = req.body.content;
-  const article = new Article({ title: title, content: content });
+  const article = new Article({
+    title: req.body.title,
+    content: req.body.content,
+  });
   try {
     await article.save();
     res.send(`Article with title: ${title} succesfully added.`);
+  } catch (err) {
+    console.error(err);
+    res.send(err.message);
+  }
+});
+
+// Delete all articles
+app.delete("/articles", async (req, res) => {
+  try {
+    await Article.deleteMany({});
+    res.send("All articles succesfully deleted.");
   } catch (err) {
     console.error(err);
     res.send(err.message);
