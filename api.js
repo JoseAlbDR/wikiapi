@@ -22,42 +22,33 @@ const dbConnect = async function () {
 dbConnect();
 
 const articleSchema = new mongoose.Schema({
-  title: String,
+  title: { type: String, required: true },
   content: String,
 });
 
 const Article = mongoose.model("Article", articleSchema);
 
 // Get endpoints
-app.get("/articles", (req, res) => {
-  const load = async function () {
-    try {
-      const articles = await Article.find({});
-      res.send(articles);
-    } catch (err) {
-      res.send(err.message);
-      console.err(err);
-    }
-  };
-  load();
+app.get("/articles", async (req, res) => {
+  try {
+    const articles = await Article.find({});
+    res.send(articles);
+  } catch (err) {
+    res.send(err.message);
+    console.err(err);
+  }
 });
 
-app.get("/articles/:title", (req, res) => {
-  const loadOne = async function (title) {
-    try {
-      console.log(title);
-
-      const article = await Article.findOne({ title: title });
-      console.log(article);
-      if (!article) throw new Error(`Article with title: ${title} not found.`);
-
-      res.send(article);
-    } catch (err) {
-      res.send(err.message);
-      console.error(err);
-    }
-  };
-  loadOne(req.params.title);
+app.get("/articles/:title", async (req, res) => {
+  try {
+    const title = req.params.title;
+    const article = await Article.findOne({ title: title });
+    if (!article) throw new Error(`Article with title: ${title} not found.`);
+    res.send(article);
+  } catch (err) {
+    res.send(err.message);
+    console.error(err);
+  }
 });
 
 app.get("/", (req, res) => {
@@ -65,13 +56,13 @@ app.get("/", (req, res) => {
 });
 
 // Post endpoints
-
-app.post("/articles", (req, res) => {
+// Add a new article
+app.post("/articles", async (req, res) => {
   const title = req.body.title;
   const content = req.body.content;
   const article = new Article({ title: title, content: content });
   try {
-    article.save();
+    await article.save();
     res.send(`Article with title: ${title} succesfully added.`);
   } catch (err) {
     console.error(err);
