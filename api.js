@@ -5,10 +5,9 @@ const { urlencoded } = pkg;
 
 // Express
 const app = express();
-app.use(urlencoded);
+app.use(urlencoded({ extended: true }));
 app.use(express.static("public"));
-
-// Body parser
+app.set("view engine", "ejs");
 
 // DB
 const dbConnect = async function () {
@@ -29,17 +28,37 @@ const articleSchema = new mongoose.Schema({
 
 const Article = mongoose.model("Article", articleSchema);
 
-const loadAllArticles = async function () {
-  try {
-    return await Article.find({});
-  } catch (err) {
-    console.log(err);
-  }
-};
+app.get("/articles", (req, res) => {
+  const load = async function () {
+    try {
+      const articles = await Article.find({});
+      res.send(articles);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  load();
+});
 
-const articles = await loadAllArticles();
+app.get("/articles/:title", (req, res) => {
+  const loadOne = async function (title) {
+    try {
+      console.log(title);
 
-console.log(articles);
+      const article = await Article.findOne({ title: title });
+      console.log(article);
+
+      res.send(article);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  loadOne(req.params.title);
+});
+
+app.get("/", (req, res) => {
+  res.send("Welcome.");
+});
 
 app.listen(3000, () => {
   console.log("Server started on port 3000.");
