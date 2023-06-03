@@ -34,7 +34,8 @@ app.get("/articles", (req, res) => {
       const articles = await Article.find({});
       res.send(articles);
     } catch (err) {
-      console.log(err);
+      res.send(err.message);
+      console.err(err);
     }
   };
   load();
@@ -47,10 +48,12 @@ app.get("/articles/:title", (req, res) => {
 
       const article = await Article.findOne({ title: title });
       console.log(article);
+      if (!article) throw new Error(`Article with title: ${title} not found.`);
 
       res.send(article);
     } catch (err) {
-      console.log(err);
+      res.send(err.message);
+      console.error(err);
     }
   };
   loadOne(req.params.title);
