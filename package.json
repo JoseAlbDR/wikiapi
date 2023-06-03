@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "wiki-api",
   "version": "1.0.0",
   "description": "RESTful API with articles",
