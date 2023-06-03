@@ -28,17 +28,53 @@ const articleSchema = new mongoose.Schema({
 
 const Article = mongoose.model("Article", articleSchema);
 
-app.get("/articles/:title", async (req, res) => {
-  try {
-    const title = req.params.title;
-    const article = await Article.findOne({ title: title });
-    if (!article) throw new Error(`Article with title: ${title} not found.`);
-    res.send(article);
-  } catch (err) {
-    res.send(err.message);
-    console.error(err);
-  }
-});
+// Route to one article endpoint
+app
+  .route("/articles/:title")
+  .get(async (req, res) => {
+    try {
+      const title = req.params.title;
+      const article = await Article.findOne({ title: title });
+      if (!article) throw new Error(`Article with title: ${title} not found.`);
+      res.send(article);
+    } catch (err) {
+      res.send(err.message);
+      console.error(err);
+    }
+  })
+  .put(async (req, res) => {
+    try {
+      const resolve = await Article.replaceOne(
+        { title: req.params.title },
+        { title: req.body.title, content: req.body.content }
+      );
+      res.send(req.params.title + " succesfully updated.");
+      console.log(resolve);
+    } catch (err) {
+      res.send(err.message);
+    }
+  })
+  .patch(async (req, res) => {
+    try {
+      const resolve = await Article.updateOne(
+        { title: req.params.title },
+        { $set: req.body }
+      );
+      res.send(req.params.title + " succesfully updated.");
+      console.log(resolve);
+    } catch (err) {
+      console.log(err);
+      res.send(err.message);
+    }
+  })
+  .delete(async (req, res) => {
+    try {
+      await Article.deleteOne({ title: req.params.title });
+      res.send(`${req.params.title} succesfully deleted.`);
+    } catch (err) {
+      res.send(err.message);
+    }
+  });
 
 app.get("/", (req, res) => {
   res.send("Welcome.");
