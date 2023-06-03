@@ -28,6 +28,7 @@ const articleSchema = new mongoose.Schema({
 
 const Article = mongoose.model("Article", articleSchema);
 
+// Get endpoints
 app.get("/articles", (req, res) => {
   const load = async function () {
     try {
@@ -61,6 +62,21 @@ app.get("/articles/:title", (req, res) => {
 
 app.get("/", (req, res) => {
   res.send("Welcome.");
+});
+
+// Post endpoints
+
+app.post("/articles", (req, res) => {
+  const title = req.body.title;
+  const content = req.body.content;
+  const article = new Article({ title: title, content: content });
+  try {
+    article.save();
+    res.send(`Article with title: ${title} succesfully added.`);
+  } catch (err) {
+    console.error(err);
+    res.send(err.message);
+  }
 });
 
 app.listen(3000, () => {
